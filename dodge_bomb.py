@@ -75,7 +75,6 @@ def main():
     txt=fonto.render("Game Over",True,(255,255,255))
     r=1
 
-
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
