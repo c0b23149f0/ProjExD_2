@@ -25,7 +25,28 @@ def check_bound(obj_rect: pg.Rect)->tuple[bool,bool]:
         tate=False
     return yoko,tate
 def sleep_count():
+    """
+    この関数を呼ぶと呼び出した時点から３秒間その状態を表示する。
+    また、pg.display.update()によって直前の動作を更新してから止めている。
+    """
+    pg.display.update()
     time.sleep(3)
+
+def increase(vx:int,vy:int,r:int,bb_img:pg.Surface)->tuple[int,int,int,pg.Surface]:
+    """
+    この関数を呼び出すことに変数ｒの値を１ずつプラスにしていき、そのｒを参照にして加速度（vxとvy）と爆弾の大きさ（bb_img）を決定している。
+    また、ｒが10の時に上限となるように設定しており、それ以上大きくも速度も増加しなくなっている。最後に加速度を表すものとしてvx,vy、爆弾の大きさを表すものとしてbb_img、次回の関数の使用用にｒをそれぞれ返している。
+    """
+    if r<11:
+        r+=1
+        bb_img=pg.Surface((20*r,20*r))
+        pg.draw.circle(bb_img,(255,0,0),(10*r,10*r),10*r)
+        bb_img.set_colorkey((0,0,0))
+        vx*=r*1.01
+        vy*=r*1.01
+        return vx,vy,r,bb_img
+    elif r==10:
+        return vx,vy,r,bb_img
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -52,6 +73,8 @@ def main():
     tmr = 0
     fonto=pg.font.Font(None,80)
     txt=fonto.render("Game Over",True,(255,255,255))
+    r=1
+
 
     while True:
         for event in pg.event.get():
@@ -63,12 +86,10 @@ def main():
             screen.blit(txt,[325,300])
             screen.blit(kk8_img,kk8_rct_1)
             screen.blit(kk8_img,kk8_rct_2)
-            pg.display.update()
             sleep_count()
             return
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
-
         for key,tpl in DELTA.items():
             if key_lst[key]:
                 sum_mv[0]+=tpl[0]
@@ -82,13 +103,17 @@ def main():
             vx*=-1
         elif not tate:
             vy*=-1
+        if tmr%(100*r)==0:
+            vx,vy,r,bb_img=increase(vx,vy,r,bb_img)
+            print(r)
         bb_rct.move_ip(vx,vy)
         screen.blit(kk_img, kk_rct)
         screen.blit(bb_img,bb_rct)
         pg.display.update()
         tmr += 1
         clock.tick(50)
-        print(tmr)
+        #print(tmr)
+        print(type(bb_img))
 
 if __name__ == "__main__":
     pg.init()
