@@ -2,6 +2,7 @@ import os
 import sys
 import pygame as pg
 import random
+import time
 
 WIDTH, HEIGHT = 1100, 650
 DELTA={pg.K_UP:(0,-5),
@@ -23,27 +24,48 @@ def check_bound(obj_rect: pg.Rect)->tuple[bool,bool]:
     if obj_rect.top<0 or HEIGHT<obj_rect.bottom:
         tate=False
     return yoko,tate
+def sleep_count():
+    time.sleep(3)
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
+    kk8_img=pg.image.load("fig/8.png")
     bb_img= pg.Surface((20,20))
     pg.draw.circle(bb_img,(255,0,0),(10,10),10)
     bb_img.set_colorkey((0,0,0))
+    transparent_surface = pg.Surface((WIDTH, HEIGHT))
+    transparent_surface.set_alpha(128)
+    transparent_surface.fill((0,0,0))
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
+    kk8_rct_1=kk8_img.get_rect()
+    kk8_rct_1.center=275,325
+    kk8_rct_2=kk8_img.get_rect()
+    kk8_rct_2.center=675,325
     bb_rct=bb_img.get_rect()
     bb_rct.center=random.randint(0,WIDTH),random.randint(0,HEIGHT)
     vx,vy=+5,+5
     clock = pg.time.Clock()
     tmr = 0
+    fonto=pg.font.Font(None,80)
+    txt=fonto.render("Game Over",True,(255,255,255))
+
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
         screen.blit(bg_img, [0, 0])
-
+        if kk_rct.colliderect(bb_rct):
+            screen.blit(transparent_surface,[0,0])
+            screen.blit(txt,[325,300])
+            screen.blit(kk8_img,kk8_rct_1)
+            screen.blit(kk8_img,kk8_rct_2)
+            pg.display.update()
+            sleep_count()
+            return
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
 
@@ -66,7 +88,7 @@ def main():
         pg.display.update()
         tmr += 1
         clock.tick(50)
-        #print(tmr)
+        print(tmr)
 
 if __name__ == "__main__":
     pg.init()
